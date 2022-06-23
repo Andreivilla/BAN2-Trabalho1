@@ -1,0 +1,60 @@
+create table colecao(
+	id_colecao serial primary key not null,
+	nome varchar(50)
+);
+create table tipo(
+	id_Tipo serial primary key not null,
+	tempo int,--em dias 
+	npme varchar(50)
+);
+create table bibliotecario(
+	id_bibliotecario serial primary key not null,
+	id_assistente int,
+	cpf char(11),
+	nome varchar(50)
+);
+create table assistente(
+	id_assistente serial primary key not null,
+	cpf char(11),
+	nome varchar(50)
+);
+create table livro (
+	id_livro serial primary key not null,
+	editora varchar(50),
+	isbn char(13),
+	titulo varchar(50),
+	autores varchar(100),
+	id_colecao int, 
+	foreign key (id_colecao) references colecao
+);
+create table itensEmpr(
+	numRenovacoes int,
+	id_livro int primary key,
+	foreign key (id_livro) references livro
+);
+create table usuario(
+	idUsuario serial primary key not null,
+	id_Tipo int,
+	multas int,
+	numLivros int,
+	nome varchar(50),
+	endereco varchar(50),
+	telefone char(11),
+	 foreign key (id_Tipo) references tipo
+
+);
+create table reserva(
+	data_reserva date,
+	id_livro int,
+	id_usuario int,
+	foreign key (id_livro) references livro,
+	foreign key (id_usuario) references usuario
+);
+create table empresta(
+	dataVenc date,
+	dataEmpr date,
+	id_item int,
+	id_usuario int,
+	foreign key (id_item) references itensEmpr,
+	foreign key (id_usuario) references usuario
+);
