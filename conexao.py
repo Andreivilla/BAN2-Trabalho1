@@ -21,13 +21,3 @@ class conexao:
         except NameError as erro:
             return erro
 
-#sql_select = "select * from dono"
-
-#print(select)
-
-#sql_insert = "insert into dono values ('10000120000', 'Brunão')"
-#estabelecer conecção com o banco
-#connection = pg.connect(user = "postgres", password = "pgsenha", host = "localhost", port="5432", database = "Petshop")
-
-#curs.execute(sql_insert)
-#connection.commit()
