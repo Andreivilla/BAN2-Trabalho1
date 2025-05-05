@@ -10,4 +10,3 @@ class colecao:
     def select(self, id):
         cn = conexao()
         return cn.select("select * from colecao where id_colecao = " + str(id))
-        

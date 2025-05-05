@@ -1,60 +1,233 @@
-create table colecao(
-	id_colecao serial primary key not null,
-	nome varchar(50)
-);
-create table tipo(
-	id_Tipo serial primary key not null,
-	tempo int,--em dias 
-	npme varchar(50)
-);
-create table bibliotecario(
-	id_bibliotecario serial primary key not null,
-	id_assistente int,
-	cpf char(11),
-	nome varchar(50)
-);
-create table assistente(
-	id_assistente serial primary key not null,
-	cpf char(11),
-	nome varchar(50)
-);
-create table livro (
-	id_livro serial primary key not null,
-	editora varchar(50),
-	isbn char(13),
-	titulo varchar(50),
-	autores varchar(100),
-	id_colecao int, 
-	foreign key (id_colecao) references colecao
-);
-create table itensEmpr(
-	numRenovacoes int,
-	id_livro int primary key,
-	foreign key (id_livro) references livro
-);
-create table usuario(
-	idUsuario serial primary key not null,
-	id_Tipo int,
-	multas int,
-	numLivros int,
-	nome varchar(50),
-	endereco varchar(50),
-	telefone char(11),
-	 foreign key (id_Tipo) references tipo
+-- CreateTable
+CREATE TABLE "tipo" (
+    "id_tipo" SERIAL NOT NULL,
+    "tempo" INTEGER NOT NULL,
+    "nome" TEXT NOT NULL,
 
+    CONSTRAINT "tipo_pkey" PRIMARY KEY ("id_tipo")
 );
-create table reserva(
-	data_reserva date,
-	id_livro int,
-	id_usuario int,
-	foreign key (id_livro) references livro,
-	foreign key (id_usuario) references usuario
+
+-- CreateTable
+CREATE TABLE "bibliotecario" (
+    "id_bibliotecario" SERIAL NOT NULL,
+    "cpf" TEXT NOT NULL,
+    "nome" TEXT NOT NULL,
+
+    CONSTRAINT "bibliotecario_pkey" PRIMARY KEY ("id_bibliotecario")
 );
-create table empresta(
-	dataVenc date,
-	dataEmpr date,
-	id_item int,
-	id_usuario int,
-	foreign key (id_item) references itensEmpr,
-	foreign key (id_usuario) references usuario
+
+-- CreateTable
+CREATE TABLE "assistente" (
+    "id_assistente" SERIAL NOT NULL,
+    "cpf" TEXT NOT NULL,
+    "nome" TEXT NOT NULL,
+    "bibliotecarioId_bibliotecario" INTEGER NOT NULL,
+
+    CONSTRAINT "assistente_pkey" PRIMARY KEY ("id_assistente")
 );
+
+-- CreateTable
+CREATE TABLE "livro" (
+    "id_livro" SERIAL NOT NULL,
+    "editora" TEXT NOT NULL,
+    "isbn" TEXT NOT NULL,
+    "titulo" TEXT NOT NULL,
+    "autores" TEXT NOT NULL,
+    "capalivro" TEXT NOT NULL,
+    "colecaoId" INTEGER,
+    "itemEmprid" INTEGER,
+
+    CONSTRAINT "livro_pkey" PRIMARY KEY ("id_livro")
+);
+
+-- CreateTable
+CREATE TABLE "itemEmpr" (
+    "numRenovacoes" INTEGER NOT NULL,
+    "livroid" INTEGER NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "colecao" (
+    "id_colecao" SERIAL NOT NULL,
+    "nome" TEXT NOT NULL,
+
+    CONSTRAINT "colecao_pkey" PRIMARY KEY ("id_colecao")
+);
+
+ -- CreateTable
+CREATE TABLE "usuario" (
+    "id_usuario" SERIAL NOT NULL,
+    "multas" INTEGER NOT NULL,
+    "numLivros" INTEGER NOT NULL,
+    "nome" TEXT NOT NULL,
+    "endereco" TEXT NOT NULL,
+    "telefone" TEXT NOT NULL,
+    "idtipo" INTEGER NOT NULL,
+
+    CONSTRAINT "usuario_pkey" PRIMARY KEY ("id_usuario")
+);
+
+-- CreateTable
+CREATE TABLE "reserva" (
+    "data_reserva" TIMESTAMP(3) NOT NULL,
+    "usuarioId" INTEGER NOT NULL,
+    "itemEmprId" INTEGER NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "empresta" (
+    "data_venc" TIMESTAMP(3) NOT NULL,
+    "data_empr" TIMESTAMP(3) NOT NULL,
+    "usuarioId" INTEGER NOT NULL,
+    "itemEmprId" INTEGER NOT NULL
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "itemEmpr_livroid_key" ON "itemEmpr"("livroid");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "reserva_itemEmprId_key" ON "reserva"("itemEmprId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "empresta_itemEmprId_key" ON "empresta"("itemEmprId");
+
+-- AddForeignKey
+ALTER TABLE "assistente" ADD CONSTRAINT "assistente_bibliotecarioId_bibliotecario_fkey" FOREIGN KEY ("bibliotecarioId_bibliotecario") REFERENCES "bibliotecario"("id_bibliotecario") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "livro" ADD CONSTRAINT "livro_itemEmprid_fkey" FOREIGN KEY ("itemEmprid") REFERENCES "itemEmpr"("livroid") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "livro" ADD CONSTRAINT "livro_colecaoId_fkey" FOREIGN KEY ("colecaoId") REFERENCES "colecao"("id_colecao") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "usuario" ADD CONSTRAINT "usuario_idtipo_fkey" FOREIGN KEY ("idtipo") REFERENCES "tipo"("id_tipo") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "reserva" ADD CONSTRAINT "reserva_itemEmprId_fkey" FOREIGN KEY ("itemEmprId") REFERENCES "itemEmpr"("livroid") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "reserva" ADD CONSTRAINT "reserva_usuarioId_fkey" FOREIGN KEY ("usuarioId") REFERENCES "usuario"("id_usuario") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "empresta" ADD CONSTRAINT "empresta_itemEmprId_fkey" FOREIGN KEY ("itemEmprId") REFERENCES "itemEmpr"("livroid") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "empresta" ADD CONSTRAINT "empresta_usuarioId_fkey" FOREIGN KEY ("usuarioId") REFERENCES "usuario"("id_usuario") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+insert into tipo values (1, 15, 'Aluno de graduação'), 
+                        (2, 30, 'Aluno pós-graduação'),
+                        (3, 30, 'Professor'),
+                        (4, 90, 'pós-graduação');
+
+insert into colecao values (1, 'reserva'), (2, 'emprestimo');
+
+
+insert into usuario values (1, 0, 0, 'Mauri Pereira Vinhas', 'Rua José Malcher, Numero 23', '9923811616', 1),
+                            (2, 0, 0, 'Camila Montenegro Rodovalho', 'Rua Cristiano Olsen, Numero 98', '6933363722', 1),
+                            (3, 0, 0, 'Louis Charneca Ferreira', 'Avenida Tenente-Coronel Cardoso, Numero 245', '8631949464', 2),
+                            (4, 0, 0, 'Tamara Rocha Osório', 'Rua Serra de Bragança, Numero 245', '7921511143', 2),
+                            (5, 0, 0, 'Raul Neiva Carromeu', 'Avenida Rio Branco, Numero 465', '8322031393', 3),
+                            (6, 0, 0, 'Cristovão Brites Lousada', 'Travessa Antônio Ferreira, Numero 346', '8534013962', 4);
+							
+insert into bibliotecario values (1, '94432576022', 'Liane Valim Cotrim'), 
+                                (2, '84548852000','Derek Vasques Fraga');
+insert into assistente values (1, '36562663016', 'Flávia Caires Alves',1);
+
+select * from livro
+insert into livro values (3, 'Castalia', '9788497403573', 'Dom Quixote', 'Miguel de Cervantes', 'https://lirp.cdn-website.com/174487e2/dms3rep/multi/opt/capa-dom-quixote-1920w.jpg', 1, null),
+                        (4, 'Castalia', '9788497403573', 'Dom Quixote', 'Miguel de Cervantes', 'https://lirp.cdn-website.com/174487e2/dms3rep/multi/opt/capa-dom-quixote-1920w.jpg', 2, null),
+                        (5, 'Castalia', '9788497403573', 'Dom Quixote', 'Miguel de Cervantes', 'https://lirp.cdn-website.com/174487e2/dms3rep/multi/opt/capa-dom-quixote-1920w.jpg', 2, null),
+                        (6, 'Usborne', '9780794503901', 'Charles Dickens', 'Uma história em duas cidades', 'https://images-na.ssl-images-amazon.com/images/I/51P15T3DMML.jpg', 1, null),
+                        (7, 'Usborne', '9780794503901', 'Charles Dickens', 'Uma história em duas cidades', 'https://images-na.ssl-images-amazon.com/images/I/51P15T3DMML.jpg', 2, null),
+                        (8, 'Usborne', '9780794503901', 'Charles Dickens', 'Uma história em duas cidades', 'https://images-na.ssl-images-amazon.com/images/I/51P15T3DMML.jpg', 2, null),
+                        (9, 'Thorsons', '9780722532935', 'Paulo Coelho', 'the alchemist', 'https://tmg.dmmserver.com/media/640/97807225/9780722532935.jpg', 1, null),
+                		(10, 'Thorsons', '9780722532935', 'Paulo Coelho', 'the alchemist', 'https://tmg.dmmserver.com/media/640/97807225/9780722532935.jpg', 2, null),
+						(11, 'Thorsons', '9780722532935', 'Paulo Coelho', 'the alchemist', 'https://tmg.dmmserver.com/media/640/97807225/9780722532935.jpg', 2, null),
+                        (12, 'Newton Compton Editori', '9788854172388', 'Antoine de Saint-Exupéry', 'O Pequeno Príncipe', 'https://images-na.ssl-images-amazon.com/images/I/410cE1tVBqL._SX331_BO1,204,203,200_.jpg', 1, null),
+                        (13, 'Newton Compton Editori', '9788854172388', 'Antoine de Saint-Exupéry', 'O Pequeno Príncipe', 'https://images-na.ssl-images-amazon.com/images/I/410cE1tVBqL._SX331_BO1,204,203,200_.jpg', 2, null),
+                        (14, 'Newton Compton Editori', '9788854172388', 'Antoine de Saint-Exupéry', 'O Pequeno Príncipe', 'https://images-na.ssl-images-amazon.com/images/I/410cE1tVBqL._SX331_BO1,204,203,200_.jpg', 2, null),
+                        (15, 'Scholastic', '9780606323451', 'J. K. Rowling', 'Harry Potter e a Pedra Filosofal', 'https://images-na.ssl-images-amazon.com/images/I/51xcnN3AKQL._SX326_BO1,204,203,200_.jpg', 1, null),
+                        (16, 'Scholastic', '9780606323451', 'J. K. Rowling', 'Harry Potter e a Pedra Filosofal', 'https://images-na.ssl-images-amazon.com/images/I/51xcnN3AKQL._SX326_BO1,204,203,200_.jpg', 2, null);
+
+
+--assistente
+create or replace function assitente_incremet_id_func() 
+returns trigger as 
+$$
+declare
+    max_id integer = 0;
+begin
+    if ((select max(id_assistente) from assistente) is not null) then
+       max_id = (select max(id_assistente) from assistente);
+    end if;
+    new.id_assistente = max_id + 1;
+    return new;
+end;
+$$
+language plpgsql;
+
+create or replace trigger assitente_incremet_id
+before insert on assistente
+for each row execute procedure assitente_incremet_id_func()
+
+
+--bibliotecario
+create or replace function bibliotecario_incremet_id_func() 
+returns trigger as 
+$$
+declare
+    max_id integer = 0;
+begin
+    if ((select max(id_bibliotecario) from bibliotecario) is not null) then
+       max_id = (select max(id_bibliotecario) from bibliotecario);
+    end if;
+    new.id_bibliotecario = max_id + 1;
+    return new;
+end;
+$$
+language plpgsql;
+
+create or replace trigger assitente_incremet_id
+before insert on bibliotecario
+for each row execute procedure bibliotecario_incremet_id_func()
+
+--livro
+create or replace function livro_incremet_id_func()
+returns trigger as 
+$$
+declare
+    max_id integer = 0;
+begin
+    if ((select max(id_livro) from livro) is not null) then
+       max_id = (select max(id_livro) from livro);
+    end if;
+    new.id_livro = max_id + 1;
+    return new;
+end;
+$$
+language plpgsql;
+
+create or replace trigger assitente_incremet_id
+before insert on livro
+for each row execute procedure livro_incremet_id_func();
+
+--usuario
+create or replace function usuario_incremet_id_func() 
+returns trigger as 
+$$
+declare
+    max_id integer = 0;
+begin
+    if ((select max(id_usuario) from usuario) is not null) then
+       max_id = (select max(id_usuario) from usuario);
+    end if;
+    new.id_usuario = max_id + 1;
+    return new;
+end;
+$$
+language plpgsql;
+
+create or replace trigger assitente_incremet_id
+before insert on usuario
+for each row execute procedure usuario_incremet_id_func();

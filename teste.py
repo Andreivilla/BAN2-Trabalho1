@@ -19,7 +19,8 @@ def post(url, data):
 
 
 url_get = "http://localhost:80"
-url_post = "http://localhost:80"
+#url_post = "http://localhost:5555/"
+url_post = "http://127.0.0.1:5000/colecao"
 
 data = {
   "name": "caderno",
